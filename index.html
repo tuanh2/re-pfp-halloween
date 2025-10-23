@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PFP Maker</title>
+<style>
+body{margin:0;background:#0d0d0f;font-family:Arial, sans-serif;color:#fff;text-align:center}
+.container{max-width:1000px;margin:auto;padding:20px}
+.panel{margin:14px 0;display:flex;justify-content:center;gap:12px}
+input,button{padding:10px 12px;border-radius:8px;border:none;font-size:14px}
+#bgColor{width:120px}
+#pfpCanvas{width:100%;max-width:600px;background:#000;border-radius:12px}
+button{background:#7c3aed;color:#fff;cursor:pointer}
+button:active{transform:scale(0.98)}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>PFP Maker</h2>
+  <div class="panel">
+    <input type="file" id="imageInput" accept="image/*">
+    <input type="color" id="bgColor" value="#A000FF">
+  </div>
+  <canvas id="pfpCanvas" width="1080" height="1080"></canvas>
+  <div class="panel">
+    <button id="downloadBtn">Download PNG</button>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById("pfpCanvas")
+const ctx=canvas.getContext("2d")
+const W=canvas.width
+const H=canvas.height
+let img=new Image()
+let imgLoaded=false
+function draw(){
+  const bg=document.getElementById("bgColor").value
+  ctx.fillStyle=bg
+  ctx.fillRect(0,0,W,H)
+  if(imgLoaded){
+    const iw=img.width, ih=img.height
+    const scale=Math.min(W/iw,H/ih)
+    const dw=iw*scale, dh=ih*scale
+    const dx=(W-dw)/2, dy=(H-dh)/2
+    ctx.imageSmoothingQuality="high"
+    ctx.drawImage(img,dx,dy,dw,dh)
+  }
+}
+document.getElementById("imageInput").addEventListener("change",e=>{
+  const file=e.target.files[0]
+  if(!file)return
+  const reader=new FileReader()
+  reader.onload=ev=>{img=new Image();img.onload=()=>{imgLoaded=true;draw()};img.src=ev.target.result}
+  reader.readAsDataURL(file)
+})
+document.getElementById("bgColor").addEventListener("input",draw)
+document.getElementById("downloadBtn").addEventListener("click",()=>{
+  const a=document.createElement("a")
+  a.download="pfp.png"
+  a.href=canvas.toDataURL("image/png")
+  a.click()
+})
+draw()
+</script>
+</body>
+</html>
